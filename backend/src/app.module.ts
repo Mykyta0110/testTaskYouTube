@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule} from "@nestjs/config";
-import {SearchAnalytics, SearchHistory} from "./entities";
-import { VideosModule } from './videos/videos.module';
-import { SearchHistoryModule } from './search-history/search-history.module';
+import {SearchHistory} from "./entities";
+import { VideosModule } from './modules/videos/videos.module';
+import { SearchHistoryModule } from './modules/search-history/search-history.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { SearchHistoryModule } from './search-history/search-history.module';
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database: process.env.DATABASE_NAME,
-      entities: [SearchHistory, SearchAnalytics],
+      entities: [SearchHistory],
       synchronize: true,
     }),
     VideosModule,

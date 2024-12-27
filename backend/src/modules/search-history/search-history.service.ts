@@ -1,8 +1,9 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
-import {SearchHistory} from "../entities";
+import {SearchHistory} from "../../entities";
 import {Repository} from "typeorm";
 import {InjectRepository} from "@nestjs/typeorm";
-import {HistoryAnalysticInterface} from "../common/interfaces/history.analystic.interface";
+import {HistoryAnalyticInterface} from "../../common/interfaces/history.analytic.interface";
+import {SearchHistoryInterface} from "../../common/interfaces/search.history.interface";
 
 @Injectable()
 export class SearchHistoryService {
@@ -22,17 +23,23 @@ export class SearchHistoryService {
 		}
 	}
 
-	async getSearchHistory(): Promise<SearchHistory[]> {
+	async getSearchHistory(): Promise<{ history: SearchHistoryInterface[] }> {
 		try {
-			return await this.searchHistoryRepository.find({
+			const history = await this.searchHistoryRepository.find({
 				order: {timestamp: 'DESC'}
 			});
+			return {
+				history: history.map(item => ({
+					query: item.query,
+					timestamp: item.timestamp.toISOString(),
+				})),
+			};
 		} catch (e: unknown) {
 			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
 		}
 	}
 
-	async getPopularSearchQueries(): Promise<HistoryAnalysticInterface[]> {
+	async getPopularSearchQueries(): Promise<HistoryAnalyticInterface[]> {
 		try {
 			const result = await this.searchHistoryRepository
 				.createQueryBuilder('search')

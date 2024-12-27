@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import {Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
+import {ApiProperty} from '@nestjs/swagger';
 
 @Entity('search_history')
 export class SearchHistory {
@@ -17,7 +17,7 @@ export class SearchHistory {
 	})
 	query: string;
 
-	@Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+	@Column({type: 'timestamp', default: () => 'CURRENT_TIMESTAMP'})
 	@ApiProperty({
 		description: 'The timestamp of when the search was performed.',
 		example: '2024-12-26T12:00:00Z',

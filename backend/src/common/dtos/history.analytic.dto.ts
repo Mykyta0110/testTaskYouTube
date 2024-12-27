@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class HistoryAnalysticDto {
+export class HistoryAnalyticDto {
 	@ApiProperty({
 		description: 'The search query.',
 		type: String,
