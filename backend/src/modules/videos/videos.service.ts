@@ -1,24 +1,25 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {firstValueFrom} from "rxjs";
 import { HttpService } from '@nestjs/axios';
-import * as process from "process";
 import {SearchHistoryService} from "../search-history/search-history.service";
-import {SearchVideosResponse, VideoDetailsResponse} from "../common/interfaces/videos.interfaces";
+import {SearchVideosResponse, VideoDetailsResponse} from "../../common/interfaces/videos.interfaces";
 
 @Injectable()
 export class VideosService {
 	private readonly apiKey: string;
+	private readonly url: string
 	constructor(
 		private readonly httpService: HttpService,
 		private readonly searchHistoryService: SearchHistoryService
 	) {
 		this.apiKey = process.env.YOUTUBE_API_KEY
+		this.url = 'https://www.googleapis.com/youtube/v3'
 	}
 
 	async searchVideos(query: string, pageToken: string, maxResults: number): Promise<SearchVideosResponse> {
 		try {
 			await this.searchHistoryService.addSearchQuery(query);
-			const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&pageToken=${pageToken}&maxResults=${maxResults}&key=${this.apiKey}`;
+			const url = `${this.url}/search?part=snippet&q=${query}&pageToken=${pageToken}&maxResults=${maxResults}&key=${this.apiKey}`;
 			const response = await firstValueFrom(this.httpService.get(url));
 
 			return {
@@ -39,7 +40,7 @@ export class VideosService {
 	}
 
 	async getVideoDetails(videoId: string): Promise<VideoDetailsResponse> {
-		const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${this.apiKey}`;
+		const url = `${this.url}/videos?part=snippet,statistics&id=${videoId}&key=${this.apiKey}`;
 
 		try {
 			const response = await firstValueFrom(this.httpService.get(url));

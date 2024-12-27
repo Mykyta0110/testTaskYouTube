@@ -1,15 +1,16 @@
 import {Controller, Get, HttpException, HttpStatus, Param, Query} from '@nestjs/common';
 import {VideosService} from "./videos.service";
-import {SearchVideosResponse, VideoDetailsResponse} from "../common/interfaces/videos.interfaces";
+import {SearchVideosResponse, VideoDetailsResponse} from "../../common/interfaces/videos.interfaces";
 import {ApiOperation, ApiQuery, ApiResponse} from "@nestjs/swagger";
-import {SearchVideosResponseDto} from "../common/dtos/search.video.dto";
-import {VideoDetailsResponseDto} from "../common/dtos/video.detail.dto";
+import {SearchVideosResponseDto} from "../../common/dtos/search.video.dto";
+import {VideoDetailsResponseDto} from "../../common/dtos/video.detail.dto";
 
 @Controller('videos')
 export class VideosController {
-	constructor(private readonly searchService: VideosService) {}
+	constructor(private readonly searchService: VideosService) {
+	}
 
-	@ApiOperation({ summary: 'Search videos on YouTube' })
+	@ApiOperation({summary: 'Search videos on YouTube'})
 	@ApiQuery({
 		name: 'query',
 		type: String,
@@ -37,7 +38,7 @@ export class VideosController {
 		@Query('q') query: string,
 		@Query('pageToken') pageToken: string = '',
 		@Query('maxResults') maxResults: number = 10,
-	):Promise<SearchVideosResponse> {
+	): Promise<SearchVideosResponse> {
 		try {
 			return this.searchService.searchVideos(query, pageToken, maxResults);
 		} catch (e: unknown) {
@@ -45,7 +46,7 @@ export class VideosController {
 		}
 	}
 
-	@ApiOperation({ summary: 'Get details of a specific YouTube video by videoId' })
+	@ApiOperation({summary: 'Get details of a specific YouTube video by videoId'})
 	@ApiResponse({
 		status: 200,
 		description: 'Detailed video information',
@@ -56,7 +57,7 @@ export class VideosController {
 		description: 'Video not found',
 	})
 	@Get(':id')
-	async getVideoDetails(@Param('id') videoId: string):Promise<VideoDetailsResponse> {
+	async getVideoDetails(@Param('id') videoId: string): Promise<VideoDetailsResponse> {
 		try {
 			return this.searchService.getVideoDetails(videoId);
 		} catch (e: unknown) {
