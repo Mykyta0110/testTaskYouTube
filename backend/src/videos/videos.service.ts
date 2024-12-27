@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {firstValueFrom} from "rxjs";
 import { HttpService } from '@nestjs/axios';
 import * as process from "process";
@@ -16,22 +16,26 @@ export class VideosService {
 	}
 
 	async searchVideos(query: string, pageToken: string, maxResults: number): Promise<SearchVideosResponse> {
-		await this.searchHistoryService.addSearchQuery(query);
-		const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&pageToken=${pageToken}&maxResults=${maxResults}&key=${this.apiKey}`;
-		const response = await firstValueFrom(this.httpService.get(url));
+		try {
+			await this.searchHistoryService.addSearchQuery(query);
+			const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${query}&pageToken=${pageToken}&maxResults=${maxResults}&key=${this.apiKey}`;
+			const response = await firstValueFrom(this.httpService.get(url));
 
-		return {
-			results: response.data.items.map(item => ({
-				videoId: item.id.videoId,
-				title: item.snippet.title,
-				description: item.snippet.description,
-				thumbnailUrl: item.snippet.thumbnails.default.url,
-				publishedAt: item.snippet.publishedAt,
-			})),
-			totalResults: response.data.pageInfo.totalResults,
-			nextPageToken: response.data.nextPageToken || null,
-			prevPageToken: response.data.prevPageToken || null,
-		};
+			return {
+				results: response.data.items.map(item => ({
+					videoId: item.id.videoId,
+					title: item.snippet.title,
+					description: item.snippet.description,
+					thumbnailUrl: item.snippet.thumbnails.default.url,
+					publishedAt: item.snippet.publishedAt,
+				})),
+				totalResults: response.data.pageInfo.totalResults,
+				nextPageToken: response.data.nextPageToken || null,
+				prevPageToken: response.data.prevPageToken || null,
+			};
+		} catch (e: unknown) {
+			 throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
+		}
 	}
 
 	async getVideoDetails(videoId: string): Promise<VideoDetailsResponse> {
@@ -55,8 +59,8 @@ export class VideosService {
 				likeCount: videoData.statistics.likeCount,
 				commentCount: videoData.statistics.commentCount,
 			};
-		} catch (error) {
-			throw new Error('Error fetching video details: ' + error.message);
+		} catch (e: unknown) {
+			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-import {Controller, Get} from '@nestjs/common';
+import {Controller, Get, HttpException, HttpStatus} from '@nestjs/common';
 import {SearchHistoryService} from "./search-history.service";
 import {SearchHistoryInterface} from "../common/interfaces/search.history.interface";
 import {HistoryAnalysticInterface} from "../common/interfaces/history.analystic.interface";
@@ -18,13 +18,17 @@ export class SearchHistoryController {
 	})
 	@Get()
 	async getRecentSearchQueries():Promise<{history: SearchHistoryInterface[]}> {
-		const history = await this.searchHistoryService.getSearchHistory();
-		return {
-			history: history.map(item => ({
-				query: item.query,
-				timestamp: item.timestamp.toISOString(),
-			})),
-		};
+		try {
+			const history = await this.searchHistoryService.getSearchHistory();
+			return {
+				history: history.map(item => ({
+					query: item.query,
+					timestamp: item.timestamp.toISOString(),
+				})),
+			};
+		} catch (e: unknown) {
+			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
+		}
 	}
 
 	@ApiOperation({ summary: 'Get popular search queries with count' })
@@ -35,9 +39,13 @@ export class SearchHistoryController {
 	})
 	@Get('/analytics')
 	async getPopularSearchQueries():Promise<{analytics: HistoryAnalysticInterface[]}> {
-		const analytics = await this.searchHistoryService.getPopularSearchQueries();
-		return {
-			analytics,
-		};
+		try {
+			const analytics = await this.searchHistoryService.getPopularSearchQueries();
+			return {
+				analytics,
+			};
+		} catch (e: unknown) {
+			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
+		}
 	}
 }

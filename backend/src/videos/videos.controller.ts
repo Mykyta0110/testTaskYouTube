@@ -1,4 +1,4 @@
-import {Controller, Get, Param, Query} from '@nestjs/common';
+import {Controller, Get, HttpException, HttpStatus, Param, Query} from '@nestjs/common';
 import {VideosService} from "./videos.service";
 import {SearchVideosResponse, VideoDetailsResponse} from "../common/interfaces/videos.interfaces";
 import {ApiOperation, ApiQuery, ApiResponse} from "@nestjs/swagger";
@@ -38,7 +38,11 @@ export class VideosController {
 		@Query('pageToken') pageToken: string = '',
 		@Query('maxResults') maxResults: number = 10,
 	):Promise<SearchVideosResponse> {
-		return this.searchService.searchVideos(query, pageToken, maxResults);
+		try {
+			return this.searchService.searchVideos(query, pageToken, maxResults);
+		} catch (e: unknown) {
+			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
+		}
 	}
 
 	@ApiOperation({ summary: 'Get details of a specific YouTube video by videoId' })
@@ -53,6 +57,10 @@ export class VideosController {
 	})
 	@Get(':id')
 	async getVideoDetails(@Param('id') videoId: string):Promise<VideoDetailsResponse> {
-		return this.searchService.getVideoDetails(videoId);
+		try {
+			return this.searchService.getVideoDetails(videoId);
+		} catch (e: unknown) {
+			throw new HttpException(`Server error: ${e}`, HttpStatus.INTERNAL_SERVER_ERROR)
+		}
 	}
 }
